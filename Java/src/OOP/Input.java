@@ -6,5 +6,8 @@ public class Input extends JTextField {
 
 	public Input (){
 		this.setColumns(10);
+		
+		
+
 	}
 }

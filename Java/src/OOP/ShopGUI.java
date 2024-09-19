@@ -1,11 +1,15 @@
 package OOP;
 
+import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -21,36 +25,48 @@ public class ShopGUI extends JFrame {
                         "Nosaukums",
                         "Kategorija",
                         "Cena par vienību",
-                        "Daudzums"};
+                        "Daudzums",
+						"Kopsumma"};
 
 		DefaultTableModel model = new DefaultTableModel(rowData, columnNames);
+		List<JTextField> list = new ArrayList<JTextField>();
 
 		JTable table = new JTable(model);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		JPanel panel = new JPanel();
 
 		table.setAutoCreateRowSorter(true);
-		
-		panel.add(new Button("Pievienot", "add", table, rowData, panel));
-		panel.add(new Button("Noņemt", "remove", table, rowData, panel));
-		// panel.add(new Button("Labot", "update", table, rowData, panel));
 
 		JPanel inputPanel = new JPanel();
 		inputPanel.setLayout(new GridLayout(5,2, 10, 10));
+		
+		panel.add(new Button("Pievienot", "add", table, panel, list));
+		panel.add(new Button("Noņemt", "remove", table, panel, list));
+		// panel.add(new Button("Labot", "update", table, rowData, panel));
+
 
 
 		for (int i = 0; i < 5; i++) {
 			for (int j = 0; j < 2; j++) {
-				inputPanel.add(j == 0 ? new JLabel(columnNames[i]) : new Input());
+				if(j==1){
+					Input input = new Input();
+					inputPanel.add(input);
+					list.add(input);
+				} else
+					inputPanel.add(new JLabel(columnNames[i]));
 			}
 		}
+
+		table.setPreferredScrollableViewportSize(new Dimension(550, 200));
 
 		panel.add(inputPanel);
 		panel.add(new JScrollPane(table));
 
-		TableColumn column = null;
-		column = table.getColumnModel().getColumn(3);
-		column.setPreferredWidth(100);
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			table.getColumnModel().getColumn(i).setPreferredWidth(150);
+		}
+		TableColumn column = table.getColumnModel().getColumn(3);
+		column.setPreferredWidth(200);
 
 		add(panel);
 	}
