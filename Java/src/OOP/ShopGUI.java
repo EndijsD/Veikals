@@ -1,72 +1,94 @@
 package OOP;
 
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class ShopGUI extends JFrame {
 
 	public ShopGUI() {
+		// MAIN APP WINDOW SETUP
 		setTitle("Veikals");
 		setSize(800, 480);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		Object[][] rowData = {{1, "item1", "cat1", 10, 1}, {2, "item1", "cat1", 5, 3}};
-		String[] columnNames = {"Preces ID",
-                        "Nosaukums",
-                        "Kategorija",
-                        "Cena par vienību",
-                        "Daudzums",
-						"Kopsumma"};
 
-		DefaultTableModel model = new DefaultTableModel(rowData, columnNames);
-		List<JTextField> list = new ArrayList<JTextField>();
+		String[] generalFields = {"Preces ID",
+					"Nosaukums",
+					"Kategorija",
+					"Cena par vienību",
+					"Daudzums",
+					"Kopsumma"};
 
-		JTable table = new JTable(model);
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+					
+		JComboBox<Object> combobox = new JComboBox<>();
 		JPanel panel = new JPanel();
-
-		table.setAutoCreateRowSorter(true);
-
-		JPanel inputPanel = new JPanel();
-		inputPanel.setLayout(new GridLayout(5,2, 10, 10));
+		Table table = new Table(generalFields, panel, combobox);
+		List<JTextField> list = new ArrayList<JTextField>();
 		
-		panel.add(new Button("Pievienot", "add", table, panel, list));
-		panel.add(new Button("Noņemt", "remove", table, panel, list));
-		// panel.add(new Button("Labot", "update", table, rowData, panel));
+		Set<Object> uniqueValues = new HashSet<>();
+		DefaultComboBoxModel model = (DefaultComboBoxModel) combobox.getModel();
+		for (int i = 0; i < table.getRowCount(); i++) {
+			Object value = table.getValueAt(i, 2);
+			if (value != null)
+				uniqueValues.add(value);
+		}
+		Object last = null;
+		for (Object cat : uniqueValues){
+			model.addElement(cat);
+			last = cat;
+		}
+		model.setSelectedItem(last);
+					
+		// FOR CATEGORY --->>>
+		
 
-
-
-		for (int i = 0; i < 5; i++) {
-			for (int j = 0; j < 2; j++) {
-				if(j==1){
-					Input input = new Input();
-					inputPanel.add(input);
-					list.add(input);
-				} else
-					inputPanel.add(new JLabel(columnNames[i]));
+		DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
+		int catCountVal = 0;
+		int catSumVal = 0;
+		for (int i = 0; i < tableModel.getRowCount(); i++) {
+			if(tableModel.getValueAt(i, 2).toString().equals(combobox.getSelectedItem())){
+				catCountVal += (int)tableModel.getValueAt(i, 4);
+				catSumVal += (int)tableModel.getValueAt(i, 3) * (int)tableModel.getValueAt(i, 4);
 			}
 		}
 
-		table.setPreferredScrollableViewportSize(new Dimension(550, 200));
+		// FOR CATEGORY --->>>
+		JPanel catPanel = new JPanel();
+		catPanel.setLayout(new GridLayout(2, 1, 10, 10));
+		JPanel textPanel = new JPanel();
+		textPanel.setLayout(new GridLayout(1, 2, 10, 10));
+		
+		catPanel.add(combobox);
+		JLabel catCount = new JLabel("Kopskaits: " + catCountVal);
+		JLabel catSum = new JLabel("Kopsumma: " + catSumVal);
+		textPanel.add(catCount);
+		textPanel.add(catSum);
 
-		panel.add(inputPanel);
+		catPanel.add(textPanel);
+		panel.add(catPanel, SwingConstants.CENTER);
+		// <<<--- FOR CATEGORY
+						
+		panel.add(new Button("Pievienot", "add", table, panel, list, combobox, catCount, catSum));
+		panel.add(new Button("Noņemt", "remove", table, panel, list, combobox, catCount, catSum));
+
+		panel.add(new InputPanel(generalFields, list));
 		panel.add(new JScrollPane(table));
 
-		for (int i = 0; i < table.getColumnCount(); i++) {
-			table.getColumnModel().getColumn(i).setPreferredWidth(150);
-		}
-		TableColumn column = table.getColumnModel().getColumn(3);
-		column.setPreferredWidth(200);
 
 		add(panel);
 	}
